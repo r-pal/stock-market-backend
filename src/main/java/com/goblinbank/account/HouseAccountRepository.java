@@ -19,5 +19,9 @@ public interface HouseAccountRepository extends JpaRepository<HouseAccount, Long
   Optional<HouseAccount> findActiveByIdForUpdate(Long id);
 
   boolean existsByDeletedAtIsNullAndHouseNameIgnoreCase(String houseName);
+
+  @Query(
+      "select a from HouseAccount a where lower(a.houseName) = lower(:name) and a.deletedAt is null")
+  Optional<HouseAccount> findActiveByHouseNameIgnoreCase(String name);
 }
 

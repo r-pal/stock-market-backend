@@ -4,7 +4,7 @@ House players manage investments only for **their** house using a portal passwor
 
 ## Getting started
 
-1. The banker must set your portal password: `PUT /api/banker/accounts/{houseId}/portal-password`.
+1. The banker must set your portal password: `PUT /api/banker/accounts/{houseId}/portal-password` — unless you are using the six seeded *Goblin Market* houses, which get fruit passwords from the poem on first startup (see `docs/banker-guide.md`).
 2. Login: `POST /api/house/auth/login` with `{"houseId":1,"password":"..."}`.
 3. Send `Authorization: Bearer <accessToken>` on subsequent `/api/house/**` calls (except login).
 

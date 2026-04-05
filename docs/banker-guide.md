@@ -18,6 +18,21 @@
 - **Set or reset**: `PUT /api/banker/accounts/{id}/portal-password` with `{"newPassword":"..."}` (BCrypt hash stored only).
 - Houses cannot log in until a password is set. Initial login errors are intentionally generic.
 
+### Seeded “Goblin Market” houses (Christina Rossetti)
+
+After migrations, the six starter accounts use names from *Goblin Market*. On first startup, portal passwords are set automatically (one each) to **fruits named in the poem** (lowercase). If a house already has a portal hash (e.g. you set one manually), it is left unchanged.
+
+| House (name) | Fruit password (house portal) |
+|--------------|------------------------------|
+| Laura | `cherries` |
+| Lizzie | `quinces` |
+| Jeanie | `mulberries` |
+| Golden Head | `peaches` |
+| Brookside | `figs` |
+| Moonlight | `pomegranates` |
+
+Use `POST /api/house/auth/login` with `houseId` (usually 1–6 on a fresh database) and the matching password.
+
 ## Interest
 
 - **Global base rate** (per hour, decimal fraction): `PUT /api/banker/interest/global` with `{"baseRatePerHour":"0.05"}`.
