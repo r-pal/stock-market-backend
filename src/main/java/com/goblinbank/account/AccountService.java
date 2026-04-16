@@ -10,6 +10,9 @@ import com.goblinbank.ledger.LedgerEntry;
 import com.goblinbank.ledger.LedgerEntryRepository;
 import com.goblinbank.ledger.LedgerEntryType;
 import com.goblinbank.market.InvestmentPositionRepository;
+import com.goblinbank.stock.StockType;
+import com.goblinbank.stock.TradableStock;
+import com.goblinbank.stock.TradableStockRepository;
 import com.goblinbank.ticker.TickerBaselineService;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,6 +27,7 @@ public class AccountService {
   private final LedgerEntryRepository ledgerRepo;
   private final InvestmentPositionRepository positionRepo;
   private final TickerBaselineService tickerBaselineService;
+  private final TradableStockRepository stockRepo;
   private final GlobalInterestConfigRepository globalInterestRepo;
   private final RateBoundsProperties rateBounds;
   private final HouseRenameAuditRepository renameAuditRepo;
@@ -33,6 +37,7 @@ public class AccountService {
       LedgerEntryRepository ledgerRepo,
       InvestmentPositionRepository positionRepo,
       TickerBaselineService tickerBaselineService,
+      TradableStockRepository stockRepo,
       GlobalInterestConfigRepository globalInterestRepo,
       RateBoundsProperties rateBounds,
       HouseRenameAuditRepository renameAuditRepo) {
@@ -40,6 +45,7 @@ public class AccountService {
     this.ledgerRepo = ledgerRepo;
     this.positionRepo = positionRepo;
     this.tickerBaselineService = tickerBaselineService;
+    this.stockRepo = stockRepo;
     this.globalInterestRepo = globalInterestRepo;
     this.rateBounds = rateBounds;
     this.renameAuditRepo = renameAuditRepo;
@@ -77,6 +83,20 @@ public class AccountService {
     h.setBalance(BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP));
     h.setAccountRateAdjustmentPerHour(BigDecimal.ZERO);
     accountRepo.save(h);
+
+    TradableStock houseStock = new TradableStock();
+    houseStock.setDisplayName(trimmed);
+    houseStock.setStockType(StockType.HOUSE);
+    houseStock.setHouseAccount(h);
+    houseStock.setCurrentPrice(null);
+    houseStock.setActive(true);
+    Instant now = Instant.now();
+    houseStock.setCreatedBy(performerBanker(bankerUsername));
+    houseStock.setCreatedAt(now);
+    houseStock.setUpdatedBy(performerBanker(bankerUsername));
+    houseStock.setUpdatedAt(now);
+    stockRepo.save(houseStock);
+
     if (initialBalance.compareTo(BigDecimal.ZERO) != 0) {
       applyBalanceDelta(
           h, initialBalance, LedgerEntryType.DEPOSIT, performerBanker(bankerUsername));
@@ -99,6 +119,15 @@ public class AccountService {
     }
     a.setDeletedAt(Instant.now());
     accountRepo.save(a);
+    stockRepo
+        .findHouseStockByHouseIdFetched(a.getId())
+        .ifPresent(
+            s -> {
+              s.setActive(false);
+              s.setUpdatedBy(performerBanker(bankerUsername));
+              s.setUpdatedAt(Instant.now());
+              stockRepo.save(s);
+            });
     tickerBaselineService.syncAllSharePrices(Instant.now());
   }
 
@@ -118,6 +147,15 @@ public class AccountService {
     renameAuditRepo.save(audit);
     a.setHouseName(trimmed);
     accountRepo.save(a);
+    stockRepo
+        .findHouseStockByHouseIdFetched(a.getId())
+        .ifPresent(
+            s -> {
+              s.setDisplayName(trimmed);
+              s.setUpdatedBy(performerBanker(bankerUsername));
+              s.setUpdatedAt(Instant.now());
+              stockRepo.save(s);
+            });
     tickerBaselineService.syncAllSharePrices(Instant.now());
     return a;
   }

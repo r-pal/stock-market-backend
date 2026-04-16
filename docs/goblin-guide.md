@@ -8,6 +8,7 @@ No login is required for read-only investor APIs.
 |---------|---------|
 | `GET /api/public/accounts` | All active houses with balances, rates, share price, holdings, momentum |
 | `GET /api/public/accounts/{id}` | One house (404 if soft-deleted) |
+| `GET /api/public/stocks` | All active tradable stocks (house-backed + item stocks) with current prices |
 | `GET /api/public/ticker` | Single LED-style `message` string |
 | `GET /api/public/history` | Multi-series chart data |
 
@@ -65,3 +66,7 @@ If the game has not started, series may be empty until snapshots run.
 
 - Hourly interest runs in UTC; snapshots align to UTC minutes on the configured interval once the game has started.
 - Large deposits or withdrawals move cash wealth and therefore momentum (`m`), producing temporary “hype” moves in the price.
+
+## General stocks (items)
+
+In addition to house shares, the market may include **item stocks** (e.g. onions, frogs) whose prices are set manually by the banker.

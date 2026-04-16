@@ -1,6 +1,7 @@
 package com.goblinbank.market;
 
 import com.goblinbank.account.HouseAccount;
+import com.goblinbank.stock.TradableStock;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,7 +18,11 @@ public class InvestmentPosition {
   private HouseAccount buyerHouse;
 
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "target_house_id", nullable = false)
+  @JoinColumn(name = "stock_id", nullable = false)
+  private TradableStock stock;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "target_house_id")
   private HouseAccount targetHouse;
 
   @Column(name = "principal_amount", nullable = false, precision = 19, scale = 2)
@@ -62,6 +67,14 @@ public class InvestmentPosition {
 
   public void setTargetHouse(HouseAccount targetHouse) {
     this.targetHouse = targetHouse;
+  }
+
+  public TradableStock getStock() {
+    return stock;
+  }
+
+  public void setStock(TradableStock stock) {
+    this.stock = stock;
   }
 
   public BigDecimal getPrincipalAmount() {

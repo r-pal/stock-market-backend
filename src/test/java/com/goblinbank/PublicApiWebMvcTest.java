@@ -11,9 +11,13 @@ import com.goblinbank.account.PublicAccountController;
 import com.goblinbank.account.PublicAccountQueryService;
 import com.goblinbank.account.TickerController;
 import com.goblinbank.security.JwtAuthenticationFilter;
+import com.goblinbank.stock.PublicStockController;
+import com.goblinbank.stock.StockPriceService;
+import com.goblinbank.stock.TradableStockService;
 import com.goblinbank.ticker.TickerFormatterService;
 import com.goblinbank.web.dto.HistoryResponseDto;
 import com.goblinbank.web.dto.PublicAccountsResponseDto;
+import com.goblinbank.web.dto.TradableStockResponseDto;
 import com.goblinbank.web.dto.TickerResponseDto;
 import com.goblinbank.wealth.WealthHistoryController;
 import com.goblinbank.wealth.WealthHistoryQueryService;
@@ -29,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(
     controllers = {
       PublicAccountController.class,
+      PublicStockController.class,
       TickerController.class,
       WealthHistoryController.class
     },
@@ -42,6 +47,8 @@ class PublicApiWebMvcTest {
   @MockBean private TickerFormatterService tickerFormatterService;
   @MockBean private WealthHistoryQueryService wealthHistoryQueryService;
   @MockBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @MockBean private TradableStockService tradableStockService;
+  @MockBean private StockPriceService stockPriceService;
 
   @Test
   void accountsReturnsOk() throws Exception {
@@ -72,5 +79,11 @@ class PublicApiWebMvcTest {
         .perform(get("/api/public/history"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.intervalMinutes").value(20));
+  }
+
+  @Test
+  void stocksReturnsOk() throws Exception {
+    when(tradableStockService.listActive()).thenReturn(List.of());
+    mockMvc.perform(get("/api/public/stocks")).andExpect(status().isOk());
   }
 }

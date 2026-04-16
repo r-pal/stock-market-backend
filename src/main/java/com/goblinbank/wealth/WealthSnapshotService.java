@@ -67,7 +67,7 @@ public class WealthSnapshotService {
         continue;
       }
       var open =
-          positionRepo.findOpenForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
+          positionRepo.findOpenHousePositionsForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
       BigDecimal price = sharePriceService.sharePrice(house, open, capturedAt);
       BigDecimal rate = sharePriceService.effectiveRate(house);
       HouseWealthSnapshot snap = new HouseWealthSnapshot();

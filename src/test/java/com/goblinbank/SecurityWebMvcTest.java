@@ -20,6 +20,8 @@ import com.goblinbank.ledger.LedgerEntryRepository;
 import com.goblinbank.market.InvestmentPositionRepository;
 import com.goblinbank.market.InvestmentService;
 import com.goblinbank.shareprice.SharePriceConfigRepository;
+import com.goblinbank.stock.StockPriceService;
+import com.goblinbank.stock.TradableStockService;
 import com.goblinbank.ticker.TickerBaselineService;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +58,8 @@ class SecurityWebMvcTest {
   @MockBean private LedgerEntryRepository ledgerEntryRepository;
   @MockBean private TickerBaselineService tickerBaselineService;
   @MockBean private PublicAccountQueryService publicAccountQueryService;
+  @MockBean private TradableStockService tradableStockService;
+  @MockBean private StockPriceService stockPriceService;
 
   @BeforeEach
   void setupGameStatus() {
@@ -69,6 +73,11 @@ class SecurityWebMvcTest {
   @Test
   void bankerForbiddenWithoutAuth() throws Exception {
     mockMvc.perform(get("/api/banker/game/status")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void pawnShopForbiddenWithoutAuth() throws Exception {
+    mockMvc.perform(get("/api/banker/pawn-shop/stocks")).andExpect(status().isForbidden());
   }
 
   @Test

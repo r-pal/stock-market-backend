@@ -47,7 +47,7 @@ public class TickerFormatterService {
 
   private String segment(HouseAccount house, Instant now) {
     var open =
-        positionRepo.findOpenForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
+        positionRepo.findOpenHousePositionsForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
     BigDecimal pNow = sharePriceService.sharePrice(house, open, now);
     BigDecimal pPrev =
         baselineRepo

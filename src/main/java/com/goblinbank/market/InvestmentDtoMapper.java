@@ -10,7 +10,10 @@ public final class InvestmentDtoMapper {
     return new PositionResponseDto(
         p.getId(),
         p.getBuyerHouse().getId(),
-        p.getTargetHouse().getId(),
+        p.getTargetHouse() == null ? null : p.getTargetHouse().getId(),
+        p.getStock().getId(),
+        p.getStock().getStockType().name(),
+        p.getStock().getDisplayName(),
         p.getPrincipalAmount(),
         p.getStatus(),
         p.getBoughtAt(),

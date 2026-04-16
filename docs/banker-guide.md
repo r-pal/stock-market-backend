@@ -47,6 +47,25 @@ Use `POST /api/house/auth/login` with `houseId` (usually 1–6 on a fresh databa
 
 Payout on sell: `principal * (targetSharePriceAtSell / targetSharePriceAtBuy)` (can be negative).
 
+## Pawn shop (general stocks)
+
+Bankers can create and reprice **item stocks** (e.g. onions, frogs). These are separate from house share prices:
+- House-backed stocks use the existing computed share price formula.
+- Item stocks have a **manual** banker-controlled price.
+
+### Manage stocks
+
+- **List all active stocks (house + item)**: `GET /api/banker/pawn-shop/stocks`
+- **Create an item stock**: `POST /api/banker/pawn-shop/stocks` with `{"displayName":"Onions","currentPrice":"1.250000"}`
+- **Reprice an item stock**: `PUT /api/banker/pawn-shop/stocks/{id}/price` with `{"newPrice":"2.000000"}`
+
+### Buying stocks (banker)
+
+The banker investment buy endpoint supports either house-share buys (legacy) or generalized stocks:
+
+- **House share (legacy)**: `{"buyerHouseId":1,"targetHouseId":2,"amount":"500.00"}`
+- **Any stock**: `{"buyerHouseId":1,"stockId":123,"amount":"500.00"}`
+
 ## Share price tuning
 
 - **Combined patch**: `PUT /api/banker/share-price-config` with any of `hypeSensitivity`, `interestHorizonHours`, `momentumLookbackHours` (omit fields you do not want to change).

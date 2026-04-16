@@ -16,6 +16,10 @@ import com.goblinbank.market.InvestmentPositionRepository;
 import com.goblinbank.market.InvestmentService;
 import com.goblinbank.shareprice.SharePriceConfig;
 import com.goblinbank.shareprice.SharePriceConfigRepository;
+import com.goblinbank.stock.StockPriceService;
+import com.goblinbank.stock.StockType;
+import com.goblinbank.stock.TradableStock;
+import com.goblinbank.stock.TradableStockService;
 import com.goblinbank.ticker.TickerBaselineService;
 import com.goblinbank.web.dto.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -42,6 +46,8 @@ public class BankerController {
   private final GameClockService gameClockService;
   private final LedgerEntryRepository ledgerRepo;
   private final TickerBaselineService tickerBaselineService;
+  private final TradableStockService tradableStockService;
+  private final StockPriceService stockPriceService;
   private final PasswordEncoder passwordEncoder;
 
   public BankerController(
@@ -54,6 +60,8 @@ public class BankerController {
       GameClockService gameClockService,
       LedgerEntryRepository ledgerRepo,
       TickerBaselineService tickerBaselineService,
+      TradableStockService tradableStockService,
+      StockPriceService stockPriceService,
       PasswordEncoder passwordEncoder) {
     this.accountService = accountService;
     this.investmentService = investmentService;
@@ -64,6 +72,8 @@ public class BankerController {
     this.gameClockService = gameClockService;
     this.ledgerRepo = ledgerRepo;
     this.tickerBaselineService = tickerBaselineService;
+    this.tradableStockService = tradableStockService;
+    this.stockPriceService = stockPriceService;
     this.passwordEncoder = passwordEncoder;
   }
 
@@ -125,12 +135,22 @@ public class BankerController {
     if (body.buyerHouseId() == null) {
       throw new IllegalArgumentException("buyerHouseId required for banker buy");
     }
-    InvestmentPosition p =
-        investmentService.buy(
-            body.buyerHouseId(),
-            body.targetHouseId(),
-            body.amount(),
-            "banker:" + auth.getName());
+    InvestmentPosition p;
+    if (body.stockId() != null) {
+      p =
+          investmentService.buyStock(
+              body.buyerHouseId(),
+              body.stockId(),
+              body.amount(),
+              "banker:" + auth.getName());
+    } else {
+      p =
+          investmentService.buy(
+              body.buyerHouseId(),
+              body.targetHouseId(),
+              body.amount(),
+              "banker:" + auth.getName());
+    }
     return InvestmentDtoMapper.toDto(p);
   }
 
@@ -242,6 +262,38 @@ public class BankerController {
     Page<LedgerEntry> p =
         ledgerRepo.search(accountId, PageRequest.of(page, 100));
     return p.getContent().stream().map(this::mapLedger).toList();
+  }
+
+  // Pawn shop (banker-managed item stocks + visibility into all stocks/prices)
+  @GetMapping("/pawn-shop/stocks")
+  public List<TradableStockResponseDto> pawnShopStocks() {
+    Instant now = Instant.now();
+    return tradableStockService.listActive().stream().map(s -> mapStock(s, now)).toList();
+  }
+
+  @PostMapping("/pawn-shop/stocks")
+  public TradableStockResponseDto pawnShopCreate(
+      @RequestBody PawnShopCreateStockRequestDto body, Authentication auth) {
+    TradableStock s =
+        tradableStockService.createItemStock(
+            body.displayName(), body.currentPrice(), "banker:" + auth.getName());
+    return mapStock(s, Instant.now());
+  }
+
+  @PutMapping("/pawn-shop/stocks/{id}/price")
+  public TradableStockResponseDto pawnShopReprice(
+      @PathVariable Long id, @RequestBody PawnShopRepriceRequestDto body, Authentication auth) {
+    TradableStock s =
+        tradableStockService.updateItemPrice(id, body.newPrice(), "banker:" + auth.getName());
+    return mapStock(s, Instant.now());
+  }
+
+  private TradableStockResponseDto mapStock(TradableStock s, Instant now) {
+    BigDecimal price =
+        s.getStockType() == StockType.HOUSE ? stockPriceService.currentPrice(s, now) : s.getCurrentPrice();
+    Long houseId = s.getHouseAccount() == null ? null : s.getHouseAccount().getId();
+    return new TradableStockResponseDto(
+        s.getId(), s.getDisplayName(), s.getStockType().name(), houseId, price, s.isActive());
   }
 
   private LedgerLineResponseDto mapLedger(LedgerEntry e) {

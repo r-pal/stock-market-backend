@@ -36,7 +36,7 @@ public class TickerBaselineService {
     List<HouseAccount> houses = accountRepo.findAllActive();
     for (HouseAccount house : houses) {
       var open =
-          positionRepo.findOpenForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
+          positionRepo.findOpenHousePositionsForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
       BigDecimal price = sharePriceService.sharePrice(house, open, now);
       upsert(house, price, now);
     }

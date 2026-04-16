@@ -53,7 +53,7 @@ public class PublicAccountQueryService {
 
   private PublicAccountDto map(HouseAccount h, java.math.BigDecimal baseRate, Instant now) {
     var open =
-        positionRepo.findOpenForBuyerFetched(h.getId(), GoblinConstants.POSITION_OPEN);
+        positionRepo.findOpenHousePositionsForBuyerFetched(h.getId(), GoblinConstants.POSITION_OPEN);
     var eff = sharePriceService.effectiveRate(h);
     var holdings = sharePriceService.holdingsValue(h, open);
     var mom = sharePriceService.momentum(h, now);
