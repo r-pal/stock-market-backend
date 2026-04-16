@@ -213,30 +213,22 @@ Request:
 { "newPrice": "4.000000" }
 ```
 
-### Buy stock on behalf of a house
+### Deposit / withdraw on a house account (banker)
 
-- **POST** `/api/banker/investments/buy`
+- **POST** `/api/banker/accounts/{houseId}/deposit`
 
-General request:
+Request:
 
 ```json
-{ "buyerHouseId": 1, "stockId": 200, "amount": "50.00" }
+{ "amount": "100.00" }
 ```
 
-Legacy request (house shares only):
+- **POST** `/api/banker/accounts/{houseId}/withdraw`
+
+Request:
 
 ```json
-{ "buyerHouseId": 1, "targetHouseId": 2, "amount": "50.00" }
-```
-
-### Sell position (banker)
-
-- **POST** `/api/banker/investments/{positionId}/sell`
-
-Optional body (only if you need to disambiguate buyer house):
-
-```json
-{ "buyerHouseId": 1 }
+{ "amount": "50.00" }
 ```
 
 ### Houses admin / game admin / tuning
