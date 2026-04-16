@@ -3,6 +3,7 @@ package com.goblinbank;
 import com.goblinbank.config.BankerSeedProperties;
 import com.goblinbank.config.RateBoundsProperties;
 import com.goblinbank.security.JwtProperties;
+import com.goblinbank.backup.BackupProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableConfigurationProperties({JwtProperties.class, RateBoundsProperties.class, BankerSeedProperties.class})
+@EnableConfigurationProperties({JwtProperties.class, RateBoundsProperties.class, BankerSeedProperties.class, BackupProperties.class})
 public class GoblinBankApplication {
 
 	public static void main(String[] args) {
