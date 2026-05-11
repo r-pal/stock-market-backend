@@ -42,9 +42,9 @@ Share prices may be negative per game rules.
 
 ## Ticker
 
-Response shape: `{"message":"HOUSE1 ₲15.41 ▲ 2.3% | ..."}`.
+Response shape: `{"message":"HOUSE1 ₲15.41 | ..."}`.
 
-Segments are sorted by house id. Percent compares current share price to the last synced baseline after committed events (`▲` / `▼` / `-` for flat). Near-zero prior prices use a small epsilon denominator.
+Segments are sorted by house id. Each segment is **house name**, a space, the currency symbol, and **current share price** (two decimal places), separated by ` | `.
 
 ## History (`GET /api/public/history`)
 

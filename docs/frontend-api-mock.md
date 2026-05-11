@@ -119,7 +119,7 @@ Response:
 Response:
 
 ```json
-{ "message": "Laura ₲1.23 ▲ 2.3% | Lizzie ₲0.98 ▼ 1.1% | ..." }
+{ "message": "Laura ₲1.23 | Lizzie ₲0.98 | ..." }
 ```
 
 ### History chart data

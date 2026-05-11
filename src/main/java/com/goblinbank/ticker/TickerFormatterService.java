@@ -18,17 +18,14 @@ public class TickerFormatterService {
   private final HouseAccountRepository accountRepo;
   private final InvestmentPositionRepository positionRepo;
   private final SharePriceService sharePriceService;
-  private final HouseTickerBaselineRepository baselineRepo;
 
   public TickerFormatterService(
       HouseAccountRepository accountRepo,
       InvestmentPositionRepository positionRepo,
-      SharePriceService sharePriceService,
-      HouseTickerBaselineRepository baselineRepo) {
+      SharePriceService sharePriceService) {
     this.accountRepo = accountRepo;
     this.positionRepo = positionRepo;
     this.sharePriceService = sharePriceService;
-    this.baselineRepo = baselineRepo;
   }
 
   @Transactional(readOnly = true)
@@ -49,28 +46,7 @@ public class TickerFormatterService {
     var open =
         positionRepo.findOpenHousePositionsForBuyerFetched(house.getId(), GoblinConstants.POSITION_OPEN);
     BigDecimal pNow = sharePriceService.sharePrice(house, open, now);
-    BigDecimal pPrev =
-        baselineRepo
-            .findById(house.getId())
-            .map(HouseTickerBaseline::getLastSharePrice)
-            .orElse(pNow);
-    BigDecimal denom = pPrev.abs();
-    if (denom.compareTo(GoblinConstants.TICKER_PRICE_EPS) < 0) {
-      denom = GoblinConstants.TICKER_PRICE_EPS;
-    }
-    BigDecimal pct =
-        pNow.subtract(pPrev).multiply(new BigDecimal("100")).divide(denom, 1, RoundingMode.HALF_UP);
-    int cmp = pct.compareTo(BigDecimal.ZERO);
-    String arrow = cmp > 0 ? "▲" : cmp < 0 ? "▼" : "-";
     String priceStr = pNow.setScale(2, RoundingMode.HALF_UP).toPlainString();
-    return house.getHouseName()
-        + " "
-        + GoblinConstants.CURRENCY_SYMBOL
-        + priceStr
-        + " "
-        + arrow
-        + " "
-        + pct.abs().toPlainString()
-        + "%";
+    return house.getHouseName() + " " + GoblinConstants.CURRENCY_SYMBOL + priceStr;
   }
 }

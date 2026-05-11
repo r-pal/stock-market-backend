@@ -63,7 +63,7 @@ class PublicApiWebMvcTest {
   @Test
   void tickerReturnsOk() throws Exception {
     when(tickerFormatterService.buildMessage(any()))
-        .thenReturn("House1 ₲1.00 - 0.0%");
+        .thenReturn("House1 ₲1.00");
     mockMvc
         .perform(get("/api/public/ticker"))
         .andExpect(status().isOk())
