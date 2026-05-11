@@ -29,7 +29,9 @@ public class BackupScheduler {
     this.schedulerRunRepo = schedulerRunRepo;
   }
 
-  @Scheduled(fixedDelayString = "#{@backupProperties.intervalSeconds * 1000}", initialDelay = 20000)
+  @Scheduled(
+      fixedDelayString = "#{${goblin.backup.interval-seconds:300} * 1000}",
+      initialDelay = 20000)
   public void tick() {
     if (!props.isEnabled()) {
       return;
